@@ -1,5 +1,6 @@
 package SellerBehaviours;
 
+import ETC.BehaviourKiller;
 import ETC.Book;
 import ETC.BookTitle;
 import jade.core.Agent;
@@ -68,7 +69,10 @@ public class WaitingForRequest extends Behaviour {
     }
     @Override
     public int onEnd(){
-        agent.addBehaviour(new WaitingForProposal(agent, getDataStore()));
+        WaitingForProposal behaviour = new WaitingForProposal(agent, getDataStore());
+        agent.addBehaviour(behaviour);
+        agent.addBehaviour(new BehaviourKiller(agent, 1000, behaviour));
+//        agent.addBehaviour(new WaitingForProposal(agent, getDataStore()));
         return super.onEnd();
     }
 }

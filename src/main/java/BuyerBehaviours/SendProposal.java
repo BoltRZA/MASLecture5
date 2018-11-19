@@ -25,18 +25,18 @@ public class SendProposal extends Behaviour {
         this.bestPrice = bestPrice;
         this.bestSeller = bestSeller;
         this.agent = agent;
+        this.receiversList = (List<AID>) ds.get("receiversList");
+        this.bookList = (List<Book>) ds.get("bookList");
         setDataStore(ds);
     }
     @Override
     public void onStart(){
         super.onStart();
-        ACLMessage propasal = new ACLMessage(ACLMessage.PROPOSE);
-        propasal.addReceiver(bestSeller);
-        propasal.setContent(bestPrice+"");
-        propasal.setProtocol("tradeConfirm");
-        agent.send(propasal);
-        bookList = (List<Book>) getDataStore().get("bookList");
-        receiversList = (List<AID>) getDataStore().get("receiversList");
+        ACLMessage proposal = new ACLMessage(ACLMessage.PROPOSE);
+        proposal.addReceiver(bestSeller);
+        proposal.setContent(bestPrice+"");
+        proposal.setProtocol("tradeConfirm");
+        agent.send(proposal);
         ACLMessage refuse = new ACLMessage(ACLMessage.REFUSE);
         refuse.setProtocol("tradeConfirm");
         for (AID rec: receiversList){
@@ -61,11 +61,15 @@ public class SendProposal extends Behaviour {
             answerReceived = true;
             if (answer.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
                 System.out.println("Agent " + YELLOW + agent.getLocalName() + ZERO +
-                        " said:" + GREEN + "I've got a confirm, i've bought a book for " + bestPrice + ZERO);
+                        " said:" + GREEN + "I've got a confirm from " + BLUE + answer.getSender().getLocalName()
+                        + ZERO + ", and bought a " + PURPLE + bookList.get(0).getTitle() + ZERO + " for " + bestPrice);
                 bookList.remove(0);
-            } else {
+                getDataStore().put("bookList", bookList);
+
+            } else if (answer.getPerformative() == ACLMessage.REJECT_PROPOSAL) {
                 System.out.println("Agent " + YELLOW + agent.getLocalName() + ZERO +
-                        " said:"  + RED +"I've got a disconfirm, i have to try again!" + ZERO);
+                        " said:"  + RED +"I've got a disconfirm from " + BLUE + answer.getSender().getLocalName()
+                        + ZERO + ", i have to try again!" + ZERO);
                 Book book = bookList.get(0);
                 bookList.remove(0);
                 bookList.add(book);
@@ -86,11 +90,11 @@ public class SendProposal extends Behaviour {
     public int onEnd() {
         if (bookList.size() == 0){
             System.out.println("Agent " + YELLOW + agent.getLocalName() + ZERO +  " said:" +
-                    GREEN + "I've finished a bookbuying!");
+                    GREEN + "I've finished bookbuying!");
         }
         else {
             System.out.println("Agent " + YELLOW + agent.getLocalName() + ZERO +
-                    " said:" + CYAN + "There is still books in my list of purchase" + ZERO);
+                    " said:" + CYAN + "There are still books in my list of purchase" + ZERO);
             System.out.println("----------------------------------------------------");
             agent.addBehaviour(new StartOfBuying(agent, getDataStore()));
         }

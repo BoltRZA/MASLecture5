@@ -1,5 +1,6 @@
 package AgentsTypes;
 
+import ETC.BehaviourKiller;
 import ETC.Book;
 import ETC.BookTitle;
 import SellerBehaviours.WaitingForRequest;
@@ -22,7 +23,9 @@ public class AgentSeller extends Agent {
         createSettingForSeller(bookList);
         DataStore ds = new DataStore();
         ds.put("bookList", bookList);
-        addBehaviour(new WaitingForRequest(this, ds));
+        WaitingForRequest behaviour = new WaitingForRequest(this, ds);
+        addBehaviour(behaviour);
+        addBehaviour(new BehaviourKiller(this, 5000, behaviour));
     }
 
     private void createSettingForSeller (List<Book>  bookList) {

@@ -64,6 +64,7 @@ public class WaitingForResponse extends Behaviour {
 
     @Override
     public boolean done() {
+
         return behaviourDone;
     }
 
@@ -71,12 +72,12 @@ public class WaitingForResponse extends Behaviour {
     public int onEnd() {
             if (behaviourDone && bestSeller != null) {
                 System.out.println("Winner is " + BLUE + bestSeller.getLocalName() + ZERO);
-                Behaviour behaviour = new SendProposal(agent, getDataStore(), bestSeller, bestPrice);
+                SendProposal behaviour = new SendProposal(agent, getDataStore(), bestSeller, bestPrice);
                 agent.addBehaviour(behaviour);
-                agent.addBehaviour(new BehaviourKiller(agent,5000, behaviour));
+                agent.addBehaviour(new BehaviourKiller(agent,3000, behaviour));
             } else {
                 System.out.println(RED  + " Seller " + agent.getLocalName() + "not found!" + ZERO);
-                agent.addBehaviour(new WakerBehaviour(agent, 5000) {
+                agent.addBehaviour(new WakerBehaviour(agent, 1000) {
                     @Override
                     protected void onWake() {
                         super.onWake();
